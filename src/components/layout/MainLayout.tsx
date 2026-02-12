@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { Player } from '@/features/player';
+import { Player, YouTubePlayer } from '@/features/player';
 import { usePlayerStore } from '@/stores';
 
 export function MainLayout() {
@@ -22,7 +22,10 @@ export function MainLayout() {
         </div>
       </main>
 
-      {/* Player */}
+      {/* YouTube IFrame Player (hidden, handles actual playback) */}
+      <YouTubePlayer />
+
+      {/* Player controls UI */}
       <Player />
     </div>
   );
