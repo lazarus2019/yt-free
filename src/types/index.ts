@@ -56,8 +56,10 @@ export interface SearchResult {
   thumbnail: string;
   duration?: number;
   channelName?: string;
+  channelId?: string;
   viewCount?: number;
   publishedAt?: Date;
+  videoId?: string;
 }
 
 // Player types
@@ -92,7 +94,79 @@ export interface ApiResponse<T> {
 export interface PaginatedResponse<T> {
   items: T[];
   totalCount: number;
+  nextPageToken?: string;
+  prevPageToken?: string;
   page: number;
   pageSize: number;
   hasMore: boolean;
+}
+
+// YouTube API types
+export interface YouTubeSearchResponse {
+  kind: string;
+  etag: string;
+  nextPageToken?: string;
+  prevPageToken?: string;
+  pageInfo: {
+    totalResults: number;
+    resultsPerPage: number;
+  };
+  items: YouTubeSearchItem[];
+}
+
+export interface YouTubeSearchItem {
+  kind: string;
+  etag: string;
+  id: {
+    kind: string;
+    videoId?: string;
+    channelId?: string;
+    playlistId?: string;
+  };
+  snippet: YouTubeSnippet;
+}
+
+export interface YouTubeSnippet {
+  publishedAt: string;
+  channelId: string;
+  title: string;
+  description: string;
+  thumbnails: {
+    default: YouTubeThumbnail;
+    medium: YouTubeThumbnail;
+    high: YouTubeThumbnail;
+    standard?: YouTubeThumbnail;
+    maxres?: YouTubeThumbnail;
+  };
+  channelTitle: string;
+  liveBroadcastContent: string;
+}
+
+export interface YouTubeThumbnail {
+  url: string;
+  width: number;
+  height: number;
+}
+
+export interface YouTubeVideoDetails {
+  kind: string;
+  etag: string;
+  items: YouTubeVideoItem[];
+}
+
+export interface YouTubeVideoItem {
+  kind: string;
+  etag: string;
+  id: string;
+  snippet: YouTubeSnippet;
+  contentDetails: {
+    duration: string; // ISO 8601 duration, e.g., "PT4M13S"
+    dimension: string;
+    definition: string;
+  };
+  statistics: {
+    viewCount: string;
+    likeCount: string;
+    commentCount: string;
+  };
 }
