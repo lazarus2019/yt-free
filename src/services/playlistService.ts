@@ -1,97 +1,32 @@
 import type { Playlist, Track, PlaylistRole, PlaylistContributor } from '@/types';
 
-// Mock data storage (simulating a database)
-let mockPlaylists: Playlist[] = [
-  {
-    id: 'playlist-1',
-    name: 'My Favorites',
-    description: 'Collection of my all-time favorite songs',
-    thumbnail: 'https://picsum.photos/seed/playlist1/300/300',
-    owner: {
-      id: 'user-1',
-      name: 'Demo User',
-      avatar: 'https://picsum.photos/seed/user1/100/100',
-    },
-    contributors: [],
-    tracks: [
-      {
-        id: 'track-1',
-        title: 'Bohemian Rhapsody',
-        artist: 'Queen',
-        album: 'A Night at the Opera',
-        duration: 354,
-        thumbnail: 'https://picsum.photos/seed/queen1/120/120',
-        videoId: 'fJ9rUzIMcZQ',
-        addedBy: 'user-1',
-        addedAt: new Date('2024-01-15'),
-      },
-      {
-        id: 'track-2',
-        title: 'Hotel California',
-        artist: 'Eagles',
-        album: 'Hotel California',
-        duration: 391,
-        thumbnail: 'https://picsum.photos/seed/eagles1/120/120',
-        videoId: 'EqPtz5qN7HM',
-        addedBy: 'user-1',
-        addedAt: new Date('2024-01-16'),
-      },
-    ],
-    isPublic: false,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-16'),
-  },
-  {
-    id: 'playlist-2',
-    name: 'Rock Classics',
-    description: 'Best rock songs from the 70s and 80s',
-    thumbnail: 'https://picsum.photos/seed/playlist2/300/300',
-    owner: {
-      id: 'user-1',
-      name: 'Demo User',
-      avatar: 'https://picsum.photos/seed/user1/100/100',
-    },
-    contributors: [
-      {
-        userId: 'user-2',
-        name: 'Friend User',
-        avatar: 'https://picsum.photos/seed/user2/100/100',
-        role: 'collaborator',
-      },
-    ],
-    tracks: [
-      {
-        id: 'track-3',
-        title: 'Stairway to Heaven',
-        artist: 'Led Zeppelin',
-        album: 'Led Zeppelin IV',
-        duration: 482,
-        thumbnail: 'https://picsum.photos/seed/ledzep1/120/120',
-        videoId: 'QkF3oxziUI4',
-        addedBy: 'user-1',
-        addedAt: new Date('2024-02-01'),
-      },
-      {
-        id: 'track-4',
-        title: 'Sweet Child O Mine',
-        artist: "Guns N' Roses",
-        album: 'Appetite for Destruction',
-        duration: 303,
-        thumbnail: 'https://picsum.photos/seed/gnr1/120/120',
-        videoId: '1w7OgIMMRc4',
-        addedBy: 'user-2',
-        addedAt: new Date('2024-02-05'),
-      },
-    ],
-    isPublic: true,
-    shareLink: 'https://ytfree.app/share/playlist-2',
-    createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-02-05'),
-  },
-];
+// ─── LocalStorage-backed playlist persistence ────────────────────────────
 
-// Simulate API delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const STORAGE_KEY = 'yt-free-playlists';
+
+function loadPlaylists(): Playlist[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored) as Playlist[];
+    // Rehydrate Date objects
+    return parsed.map((p) => ({
+      ...p,
+      createdAt: new Date(p.createdAt),
+      updatedAt: new Date(p.updatedAt),
+      tracks: p.tracks.map((t) => ({
+        ...t,
+        addedAt: t.addedAt ? new Date(t.addedAt) : undefined,
+      })),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function savePlaylists(playlists: Playlist[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(playlists));
+}
 
 // Generate unique ID
 const generateId = () => `playlist-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -99,9 +34,8 @@ const generateId = () => `playlist-${Date.now()}-${Math.random().toString(36).su
 export const playlistService = {
   // Get all playlists for a user
   async getUserPlaylists(userId: string): Promise<Playlist[]> {
-    await delay(300);
-    
-    return mockPlaylists.filter(
+    const playlists = loadPlaylists();
+    return playlists.filter(
       (playlist) =>
         playlist.owner.id === userId ||
         playlist.contributors.some((c) => c.userId === userId)
@@ -110,14 +44,14 @@ export const playlistService = {
 
   // Get playlist by ID
   async getPlaylist(playlistId: string): Promise<Playlist | null> {
-    await delay(200);
-    return mockPlaylists.find((p) => p.id === playlistId) || null;
+    const playlists = loadPlaylists();
+    return playlists.find((p) => p.id === playlistId) || null;
   },
 
   // Get playlist by share link
   async getPlaylistByShareLink(shareLink: string): Promise<Playlist | null> {
-    await delay(200);
-    return mockPlaylists.find((p) => p.shareLink === shareLink) || null;
+    const playlists = loadPlaylists();
+    return playlists.find((p) => p.shareLink === shareLink) || null;
   },
 
   // Create new playlist
@@ -126,13 +60,13 @@ export const playlistService = {
     description: string,
     owner: { id: string; name: string; avatar: string }
   ): Promise<Playlist> {
-    await delay(300);
+    const playlists = loadPlaylists();
 
     const newPlaylist: Playlist = {
       id: generateId(),
       name,
       description,
-      thumbnail: `https://picsum.photos/seed/${Date.now()}/300/300`,
+      thumbnail: undefined,
       owner,
       contributors: [],
       tracks: [],
@@ -141,7 +75,8 @@ export const playlistService = {
       updatedAt: new Date(),
     };
 
-    mockPlaylists.push(newPlaylist);
+    playlists.push(newPlaylist);
+    savePlaylists(playlists);
     return newPlaylist;
   },
 
@@ -150,67 +85,71 @@ export const playlistService = {
     playlistId: string,
     updates: Partial<Pick<Playlist, 'name' | 'description' | 'isPublic'>>
   ): Promise<Playlist | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
 
-    mockPlaylists[index] = {
-      ...mockPlaylists[index],
+    playlists[index] = {
+      ...playlists[index],
       ...updates,
       updatedAt: new Date(),
     };
 
-    return mockPlaylists[index];
+    savePlaylists(playlists);
+    return playlists[index];
   },
 
   // Delete playlist
   async deletePlaylist(playlistId: string): Promise<boolean> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return false;
 
-    mockPlaylists.splice(index, 1);
+    playlists.splice(index, 1);
+    savePlaylists(playlists);
     return true;
   },
 
   // Add track to playlist
   async addTrack(playlistId: string, track: Omit<Track, 'addedAt'>): Promise<Playlist | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
+
+    // Prevent duplicate tracks
+    const exists = playlists[index].tracks.some((t) => t.videoId === track.videoId);
+    if (exists) return playlists[index];
 
     const newTrack: Track = {
       ...track,
       addedAt: new Date(),
     };
 
-    mockPlaylists[index].tracks.push(newTrack);
-    mockPlaylists[index].updatedAt = new Date();
+    playlists[index].tracks.push(newTrack);
+    playlists[index].updatedAt = new Date();
 
-    // Update thumbnail if it's the first track
-    if (mockPlaylists[index].tracks.length === 1) {
-      mockPlaylists[index].thumbnail = track.thumbnail;
+    // Update thumbnail to first track if none set
+    if (!playlists[index].thumbnail && track.thumbnail) {
+      playlists[index].thumbnail = track.thumbnail;
     }
 
-    return mockPlaylists[index];
+    savePlaylists(playlists);
+    return playlists[index];
   },
 
   // Remove track from playlist
   async removeTrack(playlistId: string, trackId: string): Promise<Playlist | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
 
-    mockPlaylists[index].tracks = mockPlaylists[index].tracks.filter(
+    playlists[index].tracks = playlists[index].tracks.filter(
       (t) => t.id !== trackId
     );
-    mockPlaylists[index].updatedAt = new Date();
+    playlists[index].updatedAt = new Date();
 
-    return mockPlaylists[index];
+    savePlaylists(playlists);
+    return playlists[index];
   },
 
   // Reorder tracks in playlist
@@ -218,34 +157,34 @@ export const playlistService = {
     playlistId: string,
     trackIds: string[]
   ): Promise<Playlist | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
 
     const trackMap = new Map(
-      mockPlaylists[index].tracks.map((t) => [t.id, t])
+      playlists[index].tracks.map((t) => [t.id, t])
     );
 
-    mockPlaylists[index].tracks = trackIds
+    playlists[index].tracks = trackIds
       .map((id) => trackMap.get(id))
       .filter((t): t is Track => t !== undefined);
-    mockPlaylists[index].updatedAt = new Date();
+    playlists[index].updatedAt = new Date();
 
-    return mockPlaylists[index];
+    savePlaylists(playlists);
+    return playlists[index];
   },
 
   // Generate share link
   async generateShareLink(playlistId: string): Promise<string | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
 
-    const shareLink = `https://ytfree.app/share/${playlistId}`;
-    mockPlaylists[index].shareLink = shareLink;
-    mockPlaylists[index].isPublic = true;
+    const shareLink = `${window.location.origin}/playlist/${playlistId}`;
+    playlists[index].shareLink = shareLink;
+    playlists[index].isPublic = true;
 
+    savePlaylists(playlists);
     return shareLink;
   },
 
@@ -255,29 +194,26 @@ export const playlistService = {
     collaborator: Omit<PlaylistContributor, 'role'>,
     role: PlaylistRole = 'collaborator'
   ): Promise<Playlist | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
 
-    // Check if already a contributor
-    const existingIndex = mockPlaylists[index].contributors.findIndex(
+    const existingIndex = playlists[index].contributors.findIndex(
       (c) => c.userId === collaborator.userId
     );
 
     if (existingIndex !== -1) {
-      // Update role
-      mockPlaylists[index].contributors[existingIndex].role = role;
+      playlists[index].contributors[existingIndex].role = role;
     } else {
-      // Add new contributor
-      mockPlaylists[index].contributors.push({
+      playlists[index].contributors.push({
         ...collaborator,
         role,
       });
     }
 
-    mockPlaylists[index].updatedAt = new Date();
-    return mockPlaylists[index];
+    playlists[index].updatedAt = new Date();
+    savePlaylists(playlists);
+    return playlists[index];
   },
 
   // Remove collaborator from playlist
@@ -285,17 +221,17 @@ export const playlistService = {
     playlistId: string,
     userId: string
   ): Promise<Playlist | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
 
-    mockPlaylists[index].contributors = mockPlaylists[index].contributors.filter(
+    playlists[index].contributors = playlists[index].contributors.filter(
       (c) => c.userId !== userId
     );
-    mockPlaylists[index].updatedAt = new Date();
+    playlists[index].updatedAt = new Date();
 
-    return mockPlaylists[index];
+    savePlaylists(playlists);
+    return playlists[index];
   },
 
   // Update collaborator role
@@ -304,27 +240,26 @@ export const playlistService = {
     userId: string,
     role: PlaylistRole
   ): Promise<Playlist | null> {
-    await delay(200);
-
-    const index = mockPlaylists.findIndex((p) => p.id === playlistId);
+    const playlists = loadPlaylists();
+    const index = playlists.findIndex((p) => p.id === playlistId);
     if (index === -1) return null;
 
-    const contributorIndex = mockPlaylists[index].contributors.findIndex(
+    const contributorIndex = playlists[index].contributors.findIndex(
       (c) => c.userId === userId
     );
 
     if (contributorIndex === -1) return null;
 
-    mockPlaylists[index].contributors[contributorIndex].role = role;
-    mockPlaylists[index].updatedAt = new Date();
+    playlists[index].contributors[contributorIndex].role = role;
+    playlists[index].updatedAt = new Date();
 
-    return mockPlaylists[index];
+    savePlaylists(playlists);
+    return playlists[index];
   },
 
   // Check user's role in playlist
   getUserRole(playlist: Playlist, userId: string): PlaylistRole | null {
     if (playlist.owner.id === userId) return 'owner';
-    
     const contributor = playlist.contributors.find((c) => c.userId === userId);
     return contributor?.role || null;
   },
