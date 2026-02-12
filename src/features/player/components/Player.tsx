@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   Play,
   Pause,
@@ -17,7 +17,6 @@ import { formatDuration, cn } from '@/utils';
 import { useState } from 'react';
 
 export function Player() {
-  const audioRef = useRef<HTMLAudioElement>(null);
   const [showQueue, setShowQueue] = useState(false);
 
   const {
@@ -35,7 +34,6 @@ export function Player() {
     next,
     previous,
     setCurrentTime,
-    setDuration,
     setVolume,
     toggleMute,
     setRepeatMode,
@@ -43,61 +41,16 @@ export function Player() {
     playTrack,
   } = usePlayerStore();
 
-  // Handle audio events
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const handleLoadedMetadata = () => setDuration(audio.duration);
-    const handleEnded = () => {
-      if (repeatMode === 'one') {
-        audio.currentTime = 0;
-        audio.play();
-      } else {
-        next();
-      }
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, [setCurrentTime, setDuration, next, repeatMode]);
-
-  // Handle play/pause
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isPlaying) {
-      audio.play().catch(console.error);
-    } else {
-      audio.pause();
-    }
-  }, [isPlaying, currentTrack]);
-
-  // Handle volume
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    audio.volume = isMuted ? 0 : volume;
-  }, [volume, isMuted]);
-
+  // Seek via the global YouTube player reference
   const handleSeek = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const audio = audioRef.current;
-      if (!audio) return;
-
       const time = Number(e.target.value);
-      audio.currentTime = time;
       setCurrentTime(time);
+      // The YouTubePlayer component sets this global ref
+      const ytPlayer = (window as unknown as { __ytPlayer?: { seekTo: (t: number, a: boolean) => void } }).__ytPlayer;
+      if (ytPlayer?.seekTo) {
+        ytPlayer.seekTo(time, true);
+      }
     },
     [setCurrentTime]
   );
@@ -125,12 +78,6 @@ export function Player() {
 
   return (
     <>
-      {/* Hidden audio element - in production this would be YouTube iframe */}
-      <audio
-        ref={audioRef}
-        src={`https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(parseInt(currentTrack.id) % 16) + 1}.mp3`}
-      />
-
       {/* Player bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-900 border-t border-zinc-800">
         {/* Progress bar */}
