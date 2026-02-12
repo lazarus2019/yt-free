@@ -25,7 +25,7 @@ export function Sidebar() {
           <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
             <Music size={20} className="text-white" />
           </div>
-          <span className="text-xl font-bold text-white">YT Free</span>
+          <span className="text-xl font-bold text-white">YMusic</span>
         </div>
 
         {/* Main navigation */}

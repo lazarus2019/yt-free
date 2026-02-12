@@ -2,6 +2,7 @@ import { Play, Plus, MoreVertical } from 'lucide-react';
 import type { SearchResult } from '@/types';
 import { formatDuration, formatViewCount, formatRelativeTime, cn } from '@/utils';
 import { usePlayerStore } from '@/stores';
+import { searchResultToTrack } from '@/services';
 import { Dropdown, DropdownItem } from '@/components/ui';
 
 interface SearchResultItemProps {
@@ -13,25 +14,11 @@ export function SearchResultItem({ result, onAddToPlaylist }: SearchResultItemPr
   const { playTrack, addToQueue } = usePlayerStore();
 
   const handlePlay = () => {
-    playTrack({
-      id: result.id,
-      title: result.title,
-      artist: result.channelName || 'Unknown Artist',
-      duration: result.duration || 0,
-      thumbnail: result.thumbnail,
-      videoId: result.id,
-    });
+    playTrack(searchResultToTrack(result));
   };
 
   const handleAddToQueue = () => {
-    addToQueue({
-      id: result.id,
-      title: result.title,
-      artist: result.channelName || 'Unknown Artist',
-      duration: result.duration || 0,
-      thumbnail: result.thumbnail,
-      videoId: result.id,
-    });
+    addToQueue(searchResultToTrack(result));
   };
 
   return (
