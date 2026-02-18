@@ -19,13 +19,13 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="fixed left-0 top-0 bottom-20 w-64 bg-zinc-900 border-r border-zinc-800 flex flex-col z-30">
+      <aside className="w-64 h-full bg-zinc-900 border-r border-zinc-800 flex flex-col overflow-y-auto">
         {/* Logo */}
-        <div className="flex items-center gap-2 px-6 py-5">
+        <div className="flex items-center gap-2 px-6 py-5 shrink-0">
           <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
             <Music size={20} className="text-white" />
           </div>
-          <span className="text-xl font-bold text-white">YMusic</span>
+          <span className="text-xl font-bold text-white hidden sm:inline">YMusic</span>
         </div>
 
         {/* Main navigation */}
@@ -36,7 +36,7 @@ export function Sidebar() {
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                  'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm md:text-base',
                   isActive
                     ? 'bg-zinc-800 text-white'
                     : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
@@ -44,30 +44,30 @@ export function Sidebar() {
               }
             >
               <item.icon size={22} />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium hidden sm:inline">{item.label}</span>
             </NavLink>
           ))}
         </nav>
 
         {/* Playlists section */}
         {isAuthenticated && (
-          <div className="flex-1 mt-6 px-3 overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-4 mb-2">
-              <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="flex-1 mt-6 px-3 overflow-hidden flex flex-col min-h-0">
+            <div className="flex items-center justify-between px-4 mb-2 shrink-0">
+              <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider hidden sm:inline">
                 Playlists
               </h2>
               <button
                 onClick={onOpen}
-                className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors"
+                className="p-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors shrink-0"
                 title="Create playlist"
               >
                 <Plus size={18} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-1">
+            <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
               {playlists.length === 0 ? (
-                <p className="px-4 py-2 text-sm text-zinc-500">No playlists yet</p>
+                <p className="px-4 py-2 text-xs text-zinc-500 hidden sm:block">No playlists yet</p>
               ) : (
                 playlists.map((playlist) => (
                   <NavLink
@@ -95,7 +95,7 @@ export function Sidebar() {
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 hidden sm:block">
                       <p className="text-sm font-medium truncate">{playlist.name}</p>
                       <p className="text-xs text-zinc-500">
                         {playlist.tracks.length} songs
