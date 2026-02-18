@@ -11,6 +11,10 @@ import {
   Shuffle,
   ListMusic,
   ChevronUp,
+  Music,
+  Video,
+  ChevronDown,
+  Trash2,
 } from 'lucide-react';
 import { usePlayerStore } from '@/stores';
 import { formatDuration, cn } from '@/utils';
@@ -29,6 +33,7 @@ export function Player() {
     repeatMode,
     isShuffled,
     queue,
+    playerMode,
     play,
     pause,
     next,
@@ -38,7 +43,11 @@ export function Player() {
     toggleMute,
     setRepeatMode,
     toggleShuffle,
+    setPlayerMode,
     playTrack,
+    removeFromQueueByIndex,
+    moveTrackUp,
+    moveTrackDown,
   } = usePlayerStore();
 
   // Seek via the global YouTube player reference
@@ -104,7 +113,7 @@ export function Player() {
         <div className="flex items-center justify-between px-4 py-3">
           {/* Track info */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-14 h-14 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">
+            <div className="w-14 h-14 rounded-lg overflow-hidden bg-zinc-800 shrink-0">
               <img
                 src={currentTrack.thumbnail}
                 alt={currentTrack.title}
@@ -209,6 +218,20 @@ export function Player() {
               <ListMusic size={20} />
             </button>
 
+            {/* Player mode toggle */}
+            <button
+              onClick={() => setPlayerMode(playerMode === 'audio' ? 'video' : 'audio')}
+              className={cn(
+                'p-2 rounded-full transition-colors',
+                playerMode === 'video'
+                  ? 'text-red-500 hover:text-red-400'
+                  : 'text-zinc-400 hover:text-white'
+              )}
+              title={playerMode === 'audio' ? 'Switch to video' : 'Switch to audio'}
+            >
+              {playerMode === 'video' ? <Video size={20} /> : <Music size={20} />}
+            </button>
+
             {/* Volume */}
             <div className="flex items-center gap-2 group">
               <button
@@ -239,7 +262,7 @@ export function Player() {
       {showQueue && (
         <div className="fixed bottom-24 right-4 w-80 max-h-96 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in slide-in-from-bottom-4">
           <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
-            <h3 className="font-medium text-white">Queue</h3>
+            <h3 className="font-medium text-white">Queue ({queue.length})</h3>
             <button
               onClick={() => setShowQueue(false)}
               className="p-1 text-zinc-400 hover:text-white transition-colors"
@@ -252,36 +275,85 @@ export function Player() {
               <p className="text-center py-8 text-zinc-500">Queue is empty</p>
             ) : (
               queue.map((track, index) => (
-                <button
+                <div
                   key={`${track.id}-${index}`}
-                  onClick={() => playTrack(track)}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-2 hover:bg-zinc-800 transition-colors text-left',
+                    'group flex items-center gap-2 px-3 py-2 hover:bg-zinc-800 transition-colors border-b border-zinc-800/50 last:border-b-0',
                     currentTrack.id === track.id && 'bg-zinc-800'
                   )}
                 >
-                  <span className="w-6 text-xs text-zinc-500 tabular-nums">
+                  {/* Index */}
+                  <span className="w-5 text-xs text-zinc-500 tabular-nums shrink-0">
                     {index + 1}
                   </span>
-                  <div className="w-10 h-10 rounded overflow-hidden bg-zinc-700 flex-shrink-0">
-                    <img
-                      src={track.thumbnail}
-                      alt={track.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p
+
+                  {/* Track info (clickable) */}
+                  <button
+                    onClick={() => playTrack(track)}
+                    className="flex items-center gap-2 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                  >
+                    <div className="w-10 h-10 rounded overflow-hidden bg-zinc-700 shrink-0">
+                      <img
+                        src={track.thumbnail}
+                        alt={track.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={cn(
+                          'text-sm truncate',
+                          currentTrack.id === track.id ? 'text-red-500 font-medium' : 'text-white'
+                        )}
+                      >
+                        {track.title}
+                      </p>
+                      <p className="text-xs text-zinc-500 truncate">{track.artist}</p>
+                    </div>
+                  </button>
+
+                  {/* Action buttons - visible on hover */}
+                  <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Move up */}
+                    <button
+                      onClick={() => moveTrackUp(index)}
+                      disabled={index === 0}
                       className={cn(
-                        'text-sm truncate',
-                        currentTrack.id === track.id ? 'text-red-500' : 'text-white'
+                        'p-1 rounded transition-colors',
+                        index === 0
+                          ? 'text-zinc-600 cursor-not-allowed'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-700'
                       )}
+                      title="Move up"
                     >
-                      {track.title}
-                    </p>
-                    <p className="text-xs text-zinc-500 truncate">{track.artist}</p>
+                      <ChevronUp size={16} />
+                    </button>
+
+                    {/* Move down */}
+                    <button
+                      onClick={() => moveTrackDown(index)}
+                      disabled={index === queue.length - 1}
+                      className={cn(
+                        'p-1 rounded transition-colors',
+                        index === queue.length - 1
+                          ? 'text-zinc-600 cursor-not-allowed'
+                          : 'text-zinc-400 hover:text-white hover:bg-zinc-700'
+                      )}
+                      title="Move down"
+                    >
+                      <ChevronDown size={16} />
+                    </button>
+
+                    {/* Remove */}
+                    <button
+                      onClick={() => removeFromQueueByIndex(index)}
+                      className="p-1 text-zinc-400 hover:text-red-500 hover:bg-zinc-700 rounded transition-colors"
+                      title="Remove from queue"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                </button>
+                </div>
               ))
             )}
           </div>
