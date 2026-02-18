@@ -13,6 +13,7 @@ interface PlayerState {
   duration: number;
   repeatMode: RepeatMode;
   isShuffled: boolean;
+  playerMode: 'audio' | 'video'; // Audio-only or full video playback
 }
 
 interface PlayerActions {
@@ -24,7 +25,11 @@ interface PlayerActions {
   setQueue: (tracks: Track[]) => void;
   addToQueue: (track: Track) => void;
   removeFromQueue: (trackId: string) => void;
+  removeFromQueueByIndex: (index: number) => void;
   clearQueue: () => void;
+  reorderQueue: (fromIndex: number, toIndex: number) => void;
+  moveTrackUp: (index: number) => void;
+  moveTrackDown: (index: number) => void;
   
   // Playback controls
   play: () => void;
@@ -42,6 +47,7 @@ interface PlayerActions {
   // Mode controls
   setRepeatMode: (mode: RepeatMode) => void;
   toggleShuffle: () => void;
+  setPlayerMode: (mode: 'audio' | 'video') => void;
   
   // Play from playlist
   playPlaylist: (tracks: Track[], startIndex?: number) => void;
@@ -73,6 +79,7 @@ export const usePlayerStore = create<PlayerStore>()(
       duration: 0,
       repeatMode: 'none',
       isShuffled: false,
+      playerMode: 'audio',
 
       // Actions
       setCurrentTrack: (track) => set({ currentTrack: track }),
@@ -101,6 +108,47 @@ export const usePlayerStore = create<PlayerStore>()(
           queue: state.queue.filter((t) => t.id !== trackId),
           originalQueue: state.originalQueue.filter((t) => t.id !== trackId),
         })),
+
+      removeFromQueueByIndex: (index) =>
+        set((state) => {
+          const newQueue = state.queue.filter((_, i) => i !== index);
+          const newOriginalQueue = state.originalQueue.filter((_, i) => i !== index);
+          return {
+            queue: newQueue,
+            originalQueue: newOriginalQueue,
+          };
+        }),
+
+      reorderQueue: (fromIndex, toIndex) =>
+        set((state) => {
+          const newQueue = [...state.queue];
+          const newOriginalQueue = [...state.originalQueue];
+          
+          // Remove item from source index
+          const [movedItem] = newQueue.splice(fromIndex, 1);
+          const [movedOriginalItem] = newOriginalQueue.splice(fromIndex, 1);
+          
+          // Insert at target index
+          newQueue.splice(toIndex, 0, movedItem);
+          newOriginalQueue.splice(toIndex, 0, movedOriginalItem);
+          
+          return {
+            queue: newQueue,
+            originalQueue: newOriginalQueue,
+          };
+        }),
+
+      moveTrackUp: (index) => {
+        if (index <= 0) return; // Can't move up if already at top
+        const state = get();
+        state.reorderQueue(index, index - 1);
+      },
+
+      moveTrackDown: (index) => {
+        if (index >= get().queue.length - 1) return; // Can't move down if already at bottom
+        const state = get();
+        state.reorderQueue(index, index + 1);
+      },
 
       clearQueue: () =>
         set({
@@ -197,6 +245,8 @@ export const usePlayerStore = create<PlayerStore>()(
         }
       },
 
+      setPlayerMode: (mode) => set({ playerMode: mode }),
+
       playPlaylist: (tracks, startIndex = 0) => {
         const { isShuffled } = get();
         
@@ -230,6 +280,7 @@ export const usePlayerStore = create<PlayerStore>()(
         volume: state.volume,
         repeatMode: state.repeatMode,
         isShuffled: state.isShuffled,
+        playerMode: state.playerMode,
       }),
     }
   )
