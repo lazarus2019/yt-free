@@ -7,18 +7,21 @@ The player now includes advanced queue management capabilities:
 ### Features Added
 
 #### 1. **Remove from Queue**
+
 - Click the trash icon on any queue item to remove it
 - Button appears on hover for better UI/UX
 - Removes track by index to avoid duplicate removals
 - Works seamlessly with shuffle mode
 
 #### 2. **Reorder Queue (Move Up/Down)**
+
 - Move tracks up with the up chevron ↑
 - Move tracks down with the down chevron ↓
 - Buttons are disabled at edges (can't move first track up, last track down)
 - Changes persist in both regular and shuffled queue states
 
 #### 3. **Queue Display Enhancements**
+
 - Queue now shows track count: `Queue (12)`
 - Better visual hierarchy with hover states
 - Currently playing track highlighted in red
@@ -118,6 +121,7 @@ export function QueueExample() {
 ### Queue Management Flow
 
 1. **Remove Track**
+
    ```
    User clicks trash icon
    → Index determined from map position
@@ -127,6 +131,7 @@ export function QueueExample() {
    ```
 
 2. **Move Track**
+
    ```
    User clicks ↑ or ↓ button
    → moveTrackUp(index) or moveTrackDown(index) called
@@ -137,11 +142,12 @@ export function QueueExample() {
    ```
 
 3. **State Synchronization**
+
    ```
    Both queue arrays always kept in sync:
    - queue: Current playback order (may be shuffled)
    - originalQueue: Original order (used when shuffle is toggled off)
-   
+
    This ensures shuffle/unshuffle works correctly after reordering
    ```
 
@@ -158,14 +164,14 @@ export function QueueExample() {
 
 ## ✨ Edge Cases Handled
 
-| Scenario | Behavior |
-|----------|----------|
-| Move first track up | Button disabled (gray) |
-| Move last track down | Button disabled (gray) |
-| Remove currently playing track | Track removed, next auto-plays |
-| Remove all but current track | Queue continues with just current |
-| Reorder during shuffle | Both arrays updated correctly |
-| Remove while playing | No interruption, continues playing |
+| Scenario                       | Behavior                           |
+| ------------------------------ | ---------------------------------- |
+| Move first track up            | Button disabled (gray)             |
+| Move last track down           | Button disabled (gray)             |
+| Remove currently playing track | Track removed, next auto-plays     |
+| Remove all but current track   | Queue continues with just current  |
+| Reorder during shuffle         | Both arrays updated correctly      |
+| Remove while playing           | No interruption, continues playing |
 
 ---
 

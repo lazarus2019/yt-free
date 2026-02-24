@@ -8,10 +8,10 @@ The queue panel now has advanced management features:
 import { usePlayerStore } from '@/stores';
 
 const {
-  removeFromQueueByIndex,  // Remove track by index
-  moveTrackUp,             // Move track up one position
-  moveTrackDown,           // Move track down one position
-  reorderQueue,            // Reorder from one index to another
+  removeFromQueueByIndex, // Remove track by index
+  moveTrackUp, // Move track up one position
+  moveTrackDown, // Move track down one position
+  reorderQueue, // Reorder from one index to another
 } = usePlayerStore();
 
 // Remove 3rd item from queue
@@ -28,6 +28,7 @@ reorderQueue(5, 2);
 ```
 
 ### UI Features
+
 - **Remove**: Trash icon appears on hover - click to remove from queue
 - **Reorder**: ↑ ↓ arrows to move tracks up/down
 - **Queue Count**: Shows total items: `Queue (12)`
@@ -61,10 +62,10 @@ const { data: relatedTracks, isLoading } = useRelatedMusic(currentTrack);
 
 // relatedTracks is an array of Track objects:
 // [
-//   { 
+//   {
 //     id: 'track-id',
 //     title: 'Related Song Title',
-//     artist: 'Artist Name', 
+//     artist: 'Artist Name',
 //     duration: 240,
 //     thumbnail: 'url',
 //     videoId: 'yt-video-id'
@@ -79,10 +80,16 @@ const { data: relatedTracks, isLoading } = useRelatedMusic(currentTrack);
 import { recommendationService } from '@/services';
 
 // Get related music for a specific video
-const relatedTracks = await recommendationService.getRelatedMusic(videoId, maxResults = 10);
+const relatedTracks = await recommendationService.getRelatedMusic(
+  videoId,
+  (maxResults = 10),
+);
 
 // Add to auto-queue
-const tracks = await recommendationService.getAndQueueRelated(currentTrack, maxResults = 5);
+const tracks = await recommendationService.getAndQueueRelated(
+  currentTrack,
+  (maxResults = 5),
+);
 ```
 
 ## 📱 Mobile Menu Interaction
@@ -109,7 +116,7 @@ import { usePlayerStore } from '@/stores';
 
 export function YouTubePlayer() {
   const { playerMode } = usePlayerStore();
-  
+
   if (playerMode === 'video') {
     // Show full YouTube player iframe
   } else {
@@ -138,19 +145,20 @@ export function YouTubePlayer() {
 
 ## 🔗 Files Quick Links
 
-| Feature | File | Purpose |
-|---------|------|---------|
-| Mobile Layout | `src/components/layout/MainLayout.tsx` | Main layout with responsive sidebar |
-| Sidebar | `src/components/layout/Sidebar.tsx` | Responsive sidebar navigation |
-| Header | `src/components/layout/Header.tsx` | Responsive top header |
-| Player Mode | `src/stores/playerStore.ts` | Zustand store with playerMode state |
-| Mode Toggle | `src/features/player/components/Player.tsx` | UI button to toggle mode |
-| Recommendations | `src/services/recommendationService.ts` | API service for related music |
-| Hook | `src/hooks/useRelatedMusic.ts` | React Query hook for recommendations |
+| Feature         | File                                        | Purpose                              |
+| --------------- | ------------------------------------------- | ------------------------------------ |
+| Mobile Layout   | `src/components/layout/MainLayout.tsx`      | Main layout with responsive sidebar  |
+| Sidebar         | `src/components/layout/Sidebar.tsx`         | Responsive sidebar navigation        |
+| Header          | `src/components/layout/Header.tsx`          | Responsive top header                |
+| Player Mode     | `src/stores/playerStore.ts`                 | Zustand store with playerMode state  |
+| Mode Toggle     | `src/features/player/components/Player.tsx` | UI button to toggle mode             |
+| Recommendations | `src/services/recommendationService.ts`     | API service for related music        |
+| Hook            | `src/hooks/useRelatedMusic.ts`              | React Query hook for recommendations |
 
 ## 🧪 Testing
 
 ### Test Mobile Responsiveness
+
 ```bash
 # Start dev server
 npm run dev
@@ -163,6 +171,7 @@ npm run dev
 ```
 
 ### Test Recommendations
+
 ```typescript
 // In browser console:
 const { recommendationService } = await import('src/services');
@@ -171,6 +180,7 @@ console.log(tracks); // Should show related track objects
 ```
 
 ### Test Build
+
 ```bash
 npm run build  # Should succeed with no errors
 npm run lint   # Our files should have no lint errors

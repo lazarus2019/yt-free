@@ -16,16 +16,19 @@ Both features integrate seamlessly with existing shuffle/repeat modes and mainta
 ### Feature 1: Remove from Queue
 
 **What it does:**
+
 - Click trash icon to remove any track from the queue
 - Removes from both current and original queue arrays
 - Handles edge cases (remove during play, empty queue, etc.)
 
 **UI:**
+
 - Trash icon (🗑) appears on hover
 - Red hover effect to indicate destructive action
 - No confirmation needed for quick removal
 
 **Code:**
+
 ```typescript
 const { removeFromQueueByIndex } = usePlayerStore();
 removeFromQueueByIndex(2); // Remove item at index 2
@@ -36,22 +39,25 @@ removeFromQueueByIndex(2); // Remove item at index 2
 ### Feature 2: Reorder Queue (Move Up/Down)
 
 **What it does:**
+
 - Move tracks up/down in the queue
 - Preserves shuffle state correctly
 - Prevents invalid moves (first can't go up, last can't go down)
 
 **UI:**
+
 - Up chevron (↑) to move track earlier in queue
 - Down chevron (↓) to move track later in queue
 - Buttons disable at boundaries (grayed out, no-cursor)
 
 **Code:**
+
 ```typescript
 const { moveTrackUp, moveTrackDown, reorderQueue } = usePlayerStore();
 
-moveTrackUp(3);           // Move item at index 3 up one position
-moveTrackDown(0);         // Move item at index 0 down one position
-reorderQueue(5, 2);       // Move item from index 5 to index 2
+moveTrackUp(3); // Move item at index 3 up one position
+moveTrackDown(0); // Move item at index 0 down one position
+reorderQueue(5, 2); // Move item from index 5 to index 2
 ```
 
 ---
@@ -85,6 +91,7 @@ reorderQueue(5, 2);       // Move item from index 5 to index 2
 ### Changes to Player Component (`src/features/player/components/Player.tsx`)
 
 **Updated queue panel UI:**
+
 - Added `ChevronDown`, `Trash2` icons to imports
 - Updated store destructuring with new actions
 - Redesigned queue items with action buttons
@@ -92,6 +99,7 @@ reorderQueue(5, 2);       // Move item from index 5 to index 2
 - Shows queue count in header
 
 **Queue Item Structure:**
+
 ```
 ┌──────────────────────────────┐
 │ 1 [Thumb] Title       ↑ ✕    │ ← Buttons on hover
@@ -103,14 +111,14 @@ reorderQueue(5, 2);       // Move item from index 5 to index 2
 
 ## 📊 Code Statistics
 
-| Metric | Value |
-|--------|-------|
-| Store Actions Added | 4 |
-| Lines Added (Store) | 48 |
-| Lines Modified (UI) | 62 |
-| Icons Added | 2 (ChevronDown, Trash2) |
-| New Dependencies | 0 |
-| Bundle Size Change | +1.57 KB (JS) |
+| Metric              | Value                   |
+| ------------------- | ----------------------- |
+| Store Actions Added | 4                       |
+| Lines Added (Store) | 48                      |
+| Lines Modified (UI) | 62                      |
+| Icons Added         | 2 (ChevronDown, Trash2) |
+| New Dependencies    | 0                       |
+| Bundle Size Change  | +1.57 KB (JS)           |
 
 ---
 
@@ -121,7 +129,7 @@ reorderQueue(5, 2);       // Move item from index 5 to index 2
 ✅ **Build**: Successful (388.71 KB gzipped)  
 ✅ **Type Safety**: Full types for all new methods  
 ✅ **Edge Cases**: All handled properly  
-✅ **Performance**: No degradation  
+✅ **Performance**: No degradation
 
 ---
 
@@ -145,15 +153,15 @@ export function MyQueueManager() {
       {queue.map((track, index) => (
         <div key={index}>
           <span>{track.title}</span>
-          
+
           <button onClick={() => moveTrackUp(index)}>
             Move Up
           </button>
-          
+
           <button onClick={() => moveTrackDown(index)}>
             Move Down
           </button>
-          
+
           <button onClick={() => removeFromQueueByIndex(index)}>
             Remove
           </button>
@@ -200,6 +208,7 @@ The player maintains **two queue arrays** to support shuffle:
 **Both are always kept in sync** when using remove/reorder actions.
 
 This ensures:
+
 - Shuffle toggle works correctly after reordering
 - Shuffle state is preserved
 - Reorder operations are reversible
@@ -241,11 +250,11 @@ Disabled Buttons:
 
 ### Button States
 
-| Button | Normal | Hover | Disabled |
-|--------|--------|-------|----------|
-| Move Up | Gray | White | Gray |
-| Move Down | Gray | White | Gray |
-| Remove | Gray | Red | N/A |
+| Button    | Normal | Hover | Disabled |
+| --------- | ------ | ----- | -------- |
+| Move Up   | Gray   | White | Gray     |
+| Move Down | Gray   | White | Gray     |
+| Remove    | Gray   | Red   | N/A      |
 
 ---
 
@@ -274,22 +283,23 @@ const { removeFromQueueByIndex, moveTrackUp } = usePlayerStore();
 
 ## 🔍 Edge Cases & Handling
 
-| Case | Behavior |
-|------|----------|
-| **Remove first track** | ✅ Works, second track moves to first |
-| **Remove last track** | ✅ Works, queue shortens |
-| **Remove current track** | ✅ Works, next track auto-plays |
-| **Remove all tracks** | ✅ Works, queue empty |
-| **Move first track up** | ❌ Button disabled, prevented |
-| **Move last track down** | ❌ Button disabled, prevented |
-| **Reorder during shuffle** | ✅ Both arrays updated |
-| **Rapid clicks** | ✅ Handled by Zustand atomicity |
+| Case                       | Behavior                              |
+| -------------------------- | ------------------------------------- |
+| **Remove first track**     | ✅ Works, second track moves to first |
+| **Remove last track**      | ✅ Works, queue shortens              |
+| **Remove current track**   | ✅ Works, next track auto-plays       |
+| **Remove all tracks**      | ✅ Works, queue empty                 |
+| **Move first track up**    | ❌ Button disabled, prevented         |
+| **Move last track down**   | ❌ Button disabled, prevented         |
+| **Reorder during shuffle** | ✅ Both arrays updated                |
+| **Rapid clicks**           | ✅ Handled by Zustand atomicity       |
 
 ---
 
 ## 📖 Documentation Files
 
 Created/Updated:
+
 - ✅ `QUEUE_FEATURES.md` - Detailed feature documentation
 - ✅ `QUEUE_CHANGELOG.md` - Implementation changelog
 - ✅ `QUICK_REFERENCE.md` - Updated with queue API
@@ -353,6 +363,7 @@ arr.splice(toIndex, 0, item);
 ## 🚀 Future Enhancements
 
 Potential additions:
+
 1. Drag-and-drop reordering
 2. Select multiple tracks for batch delete
 3. Queue save/load
@@ -380,15 +391,18 @@ A: Player state persists to localStorage via Zustand. Check browser storage sett
 ## 🎉 Summary
 
 ✨ **Two powerful features implemented:**
+
 - Remove tracks with one click
 - Reorder with intuitive up/down arrows
 
 ✅ **Quality metrics:**
+
 - Zero errors (TypeScript + ESLint)
 - Minimal bundle impact (+1.57 KB)
 - All edge cases handled
 
 🎯 **Ready to use in:**
+
 - Player queue panel (UI implemented)
 - Custom components (store actions available)
 - Future features (e.g., drag-drop)

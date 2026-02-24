@@ -3,6 +3,7 @@
 ## 🎵 Queue Panel Comparison
 
 ### BEFORE: Read-Only Queue
+
 ```
 ┌─────────────────────────┐
 │ Queue              ✕    │
@@ -26,6 +27,7 @@ Features:
 ```
 
 ### AFTER: Full Queue Management
+
 ```
 ┌─────────────────────────────────┐
 │ Queue (12)                  ✕   │ ← Shows count!
@@ -53,24 +55,25 @@ New Features:
 
 ## 🎯 Feature Comparison Table
 
-| Feature | Before | After |
-|---------|--------|-------|
-| **View Queue** | ✅ Yes | ✅ Yes |
-| **Click to Play** | ✅ Yes | ✅ Yes |
-| **Show Count** | ❌ No | ✅ Yes |
-| **Remove Track** | ❌ No | ✅ Yes |
-| **Move Up** | ❌ No | ✅ Yes |
-| **Move Down** | ❌ No | ✅ Yes |
-| **Hover Effects** | ❌ No | ✅ Yes |
-| **Visual Feedback** | ⚠️ Minimal | ✅ Good |
-| **Currently Playing Highlight** | ⚠️ Subtle | ✅ Bold (Red) |
-| **Boundary Protection** | ❌ N/A | ✅ Yes |
+| Feature                         | Before     | After         |
+| ------------------------------- | ---------- | ------------- |
+| **View Queue**                  | ✅ Yes     | ✅ Yes        |
+| **Click to Play**               | ✅ Yes     | ✅ Yes        |
+| **Show Count**                  | ❌ No      | ✅ Yes        |
+| **Remove Track**                | ❌ No      | ✅ Yes        |
+| **Move Up**                     | ❌ No      | ✅ Yes        |
+| **Move Down**                   | ❌ No      | ✅ Yes        |
+| **Hover Effects**               | ❌ No      | ✅ Yes        |
+| **Visual Feedback**             | ⚠️ Minimal | ✅ Good       |
+| **Currently Playing Highlight** | ⚠️ Subtle  | ✅ Bold (Red) |
+| **Boundary Protection**         | ❌ N/A     | ✅ Yes        |
 
 ---
 
 ## 📱 Interaction Flow
 
 ### Before: Simple
+
 ```
 User clicks queue button
     ↓
@@ -83,6 +86,7 @@ Track plays
 ```
 
 ### After: Full Control
+
 ```
 User clicks queue button
     ↓
@@ -107,6 +111,7 @@ User selects action:
 ## 🎨 Visual Changes
 
 ### Queue Item - Before
+
 ```
 [Minimal layout]
 1 [IMG] Title
@@ -116,6 +121,7 @@ Click triggers play only
 ```
 
 ### Queue Item - After
+
 ```
 [Better layout with actions]
 
@@ -137,6 +143,7 @@ Currently playing:
 ## 🔧 API Changes
 
 ### Store API - Before
+
 ```typescript
 const {
   currentTrack,
@@ -153,26 +160,27 @@ removeFromQueue(trackId); // Only by ID
 ```
 
 ### Store API - After
+
 ```typescript
 const {
   currentTrack,
   queue,
   playTrack,
   addToQueue,
-  removeFromQueue,        // Existing (by ID)
-  removeFromQueueByIndex,  // ✨ NEW (by position)
-  reorderQueue,            // ✨ NEW (swap positions)
-  moveTrackUp,            // ✨ NEW (convenience)
-  moveTrackDown,          // ✨ NEW (convenience)
+  removeFromQueue, // Existing (by ID)
+  removeFromQueueByIndex, // ✨ NEW (by position)
+  reorderQueue, // ✨ NEW (swap positions)
+  moveTrackUp, // ✨ NEW (convenience)
+  moveTrackDown, // ✨ NEW (convenience)
   clearQueue,
   // ... other actions
 } = usePlayerStore();
 
 // Full queue control
-removeFromQueueByIndex(2);     // Remove by position
-moveTrackUp(3);                // Move up one
-moveTrackDown(0);              // Move down one
-reorderQueue(5, 2);            // Move 5 → 2
+removeFromQueueByIndex(2); // Remove by position
+moveTrackUp(3); // Move up one
+moveTrackDown(0); // Move down one
+reorderQueue(5, 2); // Move 5 → 2
 ```
 
 ---
@@ -182,6 +190,7 @@ reorderQueue(5, 2);            // Move 5 → 2
 ### Scenario 1: Remove Unwanted Track
 
 **Before:**
+
 ```
 ❌ No way to remove
 User had to:
@@ -192,6 +201,7 @@ OR
 ```
 
 **After:**
+
 ```
 ✅ One click to remove
 1. Open queue
@@ -203,6 +213,7 @@ Track removed immediately!
 ### Scenario 2: Reorder Playback
 
 **Before:**
+
 ```
 ❌ No way to reorder
 User had to:
@@ -211,6 +222,7 @@ User had to:
 ```
 
 **After:**
+
 ```
 ✅ Easy reordering
 1. Open queue
@@ -222,6 +234,7 @@ Track moves instantly!
 ### Scenario 3: See How Many Songs Left
 
 **Before:**
+
 ```
 ❌ Had to count manually
 "How many more songs?"
@@ -229,9 +242,10 @@ Track moves instantly!
 ```
 
 **After:**
+
 ```
 ✅ Shows right in header
-"Queue (12)" 
+"Queue (12)"
 → Instantly see 12 tracks left
 ```
 
@@ -240,22 +254,24 @@ Track moves instantly!
 ## 💾 State Management
 
 ### Before: Simple
+
 ```typescript
 // Could only remove by ID
-removeFromQueue("song-id-123");
+removeFromQueue('song-id-123');
 ```
 
 ### After: Powerful
+
 ```typescript
 // Can remove by position
 removeFromQueueByIndex(2);
 
 // Can reorder freely
-reorderQueue(0, 4);  // Move from 0 to 4
+reorderQueue(0, 4); // Move from 0 to 4
 
 // Convenience methods
-moveTrackUp(3);      // 3 → 2
-moveTrackDown(1);    // 1 → 2
+moveTrackUp(3); // 3 → 2
+moveTrackDown(1); // 1 → 2
 
 // State synced with shuffle mode
 // Queue and originalQueue always in sync
@@ -265,26 +281,26 @@ moveTrackDown(1);    // 1 → 2
 
 ## 🎯 User Experience Improvements
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Discoverability** | Low | High (buttons visible) |
-| **Efficiency** | Slow (no options) | Fast (direct control) |
-| **Feedback** | Minimal | Clear (hover/disabled) |
-| **Errors** | Possible | Prevented (boundaries) |
-| **Control** | Limited | Full |
-| **Learning Curve** | Flat | Very gentle |
+| Aspect              | Before            | After                  |
+| ------------------- | ----------------- | ---------------------- |
+| **Discoverability** | Low               | High (buttons visible) |
+| **Efficiency**      | Slow (no options) | Fast (direct control)  |
+| **Feedback**        | Minimal           | Clear (hover/disabled) |
+| **Errors**          | Possible          | Prevented (boundaries) |
+| **Control**         | Limited           | Full                   |
+| **Learning Curve**  | Flat              | Very gentle            |
 
 ---
 
 ## 🚀 Performance Impact
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| Bundle Size (JS) | 387.14 KB | 388.71 KB | +1.57 KB |
-| Bundle Size (CSS) | 38.77 KB | 39.10 KB | +0.33 KB |
-| Gzipped Total | 121.54 KB | 121.54 KB | No change |
-| Component Re-renders | N/A | Optimized | Same |
-| State Updates | Simple | Atomic | Same |
+| Metric               | Before    | After     | Change    |
+| -------------------- | --------- | --------- | --------- |
+| Bundle Size (JS)     | 387.14 KB | 388.71 KB | +1.57 KB  |
+| Bundle Size (CSS)    | 38.77 KB  | 39.10 KB  | +0.33 KB  |
+| Gzipped Total        | 121.54 KB | 121.54 KB | No change |
+| Component Re-renders | N/A       | Optimized | Same      |
+| State Updates        | Simple    | Atomic    | Same      |
 
 **Conclusion**: Negligible impact, well worth the features!
 
@@ -294,15 +310,15 @@ moveTrackDown(1);    // 1 → 2
 
 ```typescript
 // Remove specific tracks
-removeFromQueueByIndex(0);    // Remove first
-removeFromQueueByIndex(2);    // Remove third
+removeFromQueueByIndex(0); // Remove first
+removeFromQueueByIndex(2); // Remove third
 
 // Reorder tracks
-moveTrackUp(2);               // Move #3 → #2
-moveTrackDown(0);             // Move #1 → #2
+moveTrackUp(2); // Move #3 → #2
+moveTrackDown(0); // Move #1 → #2
 
 // Custom reordering
-reorderQueue(5, 0);           // Move #6 to #1 (play next!)
+reorderQueue(5, 0); // Move #6 to #1 (play next!)
 
 // Build custom UI
 const { moveTrackUp, moveTrackDown } = usePlayerStore();
@@ -318,6 +334,7 @@ const { moveTrackUp, moveTrackDown } = usePlayerStore();
 **Scenario: User wants to skip "Slow Song" and move "Favorite Track" to play next**
 
 ### Before (Impossible)
+
 ```
 1. 1. Click "Slow Song" to play it
 2. Wait 3 minutes
@@ -328,11 +345,12 @@ const { moveTrackUp, moveTrackDown } = usePlayerStore();
 ```
 
 ### After (Simple)
+
 ```
 1. Open Queue → "Queue (10)"
 2. Hover "Slow Song" → buttons appear
 3. Click ✕ to remove
-4. Hover "Favorite Track" → buttons appear  
+4. Hover "Favorite Track" → buttons appear
 5. Click ↑ multiple times to move to top
 6. Favorite Track plays next!
 😊 Full control!
@@ -346,15 +364,15 @@ For existing code using the old API:
 
 ```typescript
 // OLD CODE (still works)
-removeFromQueue("song-id"); // Remove by ID
+removeFromQueue('song-id'); // Remove by ID
 
 // NEW CODE (recommended)
-removeFromQueueByIndex(2);  // Remove by index (more flexible)
+removeFromQueueByIndex(2); // Remove by index (more flexible)
 
 // NEW FEATURES
-moveTrackUp(3);             // Move up one position
-moveTrackDown(0);           // Move down one position
-reorderQueue(5, 2);         // Reorder directly
+moveTrackUp(3); // Move up one position
+moveTrackDown(0); // Move down one position
+reorderQueue(5, 2); // Reorder directly
 ```
 
 **No breaking changes!** Old API still works, new API is optional.
@@ -363,14 +381,14 @@ reorderQueue(5, 2);         // Reorder directly
 
 ## ✨ Summary
 
-| Aspect | Improvement |
-|--------|------------|
-| **Features** | +4 new actions, +2 UI elements |
-| **Control** | Read-only → Full management |
-| **UX** | Passive viewing → Active control |
-| **Speed** | Manual actions → One-click actions |
-| **Discoverability** | Hidden → Visible on hover |
-| **Bundle** | Minimal impact (+1.57 KB) |
-| **Compatibility** | Fully backward compatible |
+| Aspect              | Improvement                        |
+| ------------------- | ---------------------------------- |
+| **Features**        | +4 new actions, +2 UI elements     |
+| **Control**         | Read-only → Full management        |
+| **UX**              | Passive viewing → Active control   |
+| **Speed**           | Manual actions → One-click actions |
+| **Discoverability** | Hidden → Visible on hover          |
+| **Bundle**          | Minimal impact (+1.57 KB)          |
+| **Compatibility**   | Fully backward compatible          |
 
 **Result**: Powerful queue management that users will love! 🎉
